@@ -1,1 +1,0 @@
-# TurboVets DevOps Assessment - IaC

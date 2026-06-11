@@ -40,20 +40,28 @@ jobs:
         run: |
           echo "account_id=$(aws sts get-caller-identity --query Account --output text)" >> "$GITHUB_OUTPUT"
 
+      - name: Install CDKTF dependencies
+        working-directory: ./iac
+        run: npm ci
+
+      - name: Set up Terraform
+        uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: 1.9.8
+
+      - name: Generate CDKTF providers
+        working-directory: ./iac
+        run: npx cdktf-cli get
+
+      - name: Deploy infrastructure to create/update ECR and ECS resources
+        working-directory: ./iac
+        run: npx cdktf-cli deploy --auto-approve
+
       - name: Log in to Amazon ECR
         run: |
           aws ecr get-login-password --region "$AWS_REGION" \
             | docker login --username AWS --password-stdin \
             "${{ steps.aws-account.outputs.account_id }}.dkr.ecr.${AWS_REGION}.amazonaws.com"
-
-      - name: Ensure ECR repository exists
-        run: |
-          aws ecr describe-repositories \
-            --repository-names "$ECR_REPOSITORY_NAME" \
-            --region "$AWS_REGION" \
-            || aws ecr create-repository \
-              --repository-name "$ECR_REPOSITORY_NAME" \
-              --region "$AWS_REGION"
 
       - name: Build Docker image
         working-directory: ./app
@@ -69,19 +77,6 @@ jobs:
         run: |
           docker push "${{ steps.aws-account.outputs.account_id }}.dkr.ecr.${AWS_REGION}.amazonaws.com/${ECR_REPOSITORY_NAME}:latest"
 
-      - name: Install CDKTF dependencies
-        working-directory: ./iac
-        run: npm ci
-
-      - name: Set up Terraform
-        uses: hashicorp/setup-terraform@v3
-        with:
-          terraform_version: 1.9.8
-
-      - name: Generate CDKTF providers
-        working-directory: ./iac
-        run: npx cdktf-cli get
-
-      - name: Deploy infrastructure
+      - name: Redeploy infrastructure after image push
         working-directory: ./iac
         run: npx cdktf-cli deploy --auto-approve

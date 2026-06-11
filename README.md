@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="./assets/tv-logo.png" alt="TurboVets Logo" width="300" style="border-radius: 15px;" />
+  <img src="./assets/tv-logo.png" alt="TurboVets Logo" width="200" style="border-radius: 15px;" />
 </p>
 
 # TurboVets DevOps Assessment

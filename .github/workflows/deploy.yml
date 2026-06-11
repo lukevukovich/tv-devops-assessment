@@ -1,0 +1,73 @@
+name: Deploy
+
+on:
+  push:
+    branches:
+      - dev
+      - main
+
+permissions:
+  contents: read
+
+jobs:
+  deploy:
+    name: Deploy to ${{ github.ref_name == 'main' && 'prod' || 'dev' }}
+    runs-on: ubuntu-latest
+    environment: ${{ github.ref_name == 'main' && 'prod' || 'dev' }}
+
+    env:
+      AWS_REGION: ${{ vars.AWS_REGION }}
+      PROJECT_NAME: ${{ vars.PROJECT_NAME }}
+      ECR_REPOSITORY_NAME: ${{ vars.ECR_REPOSITORY_NAME }}
+      CONTAINER_PORT: ${{ vars.CONTAINER_PORT }}
+      DESIRED_COUNT: ${{ vars.DESIRED_COUNT }}
+      CPU: ${{ vars.CPU }}
+      MEMORY: ${{ vars.MEMORY }}
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ vars.AWS_REGION }}
+
+      - name: Get AWS account ID
+        id: aws-account
+        run: |
+          echo "account_id=$(aws sts get-caller-identity --query Account --output text)" >> "$GITHUB_OUTPUT"
+
+      - name: Log in to Amazon ECR
+        run: |
+          aws ecr get-login-password --region "$AWS_REGION" \
+            | docker login --username AWS --password-stdin \
+            "${{ steps.aws-account.outputs.account_id }}.dkr.ecr.${AWS_REGION}.amazonaws.com"
+
+      - name: Build Docker image
+        working-directory: ./app
+        run: |
+          docker build -t "$ECR_REPOSITORY_NAME:latest" .
+
+      - name: Tag Docker image
+        run: |
+          docker tag "$ECR_REPOSITORY_NAME:latest" \
+            "${{ steps.aws-account.outputs.account_id }}.dkr.ecr.${AWS_REGION}.amazonaws.com/${ECR_REPOSITORY_NAME}:latest"
+
+      - name: Push Docker image to ECR
+        run: |
+          docker push "${{ steps.aws-account.outputs.account_id }}.dkr.ecr.${AWS_REGION}.amazonaws.com/${ECR_REPOSITORY_NAME}:latest"
+
+      - name: Install CDKTF dependencies
+        working-directory: ./iac
+        run: npm ci
+
+      - name: Generate CDKTF providers
+        working-directory: ./iac
+        run: npx cdktf get
+
+      - name: Deploy infrastructure
+        working-directory: ./iac
+        run: npx cdktf deploy --auto-approve

@@ -19,6 +19,7 @@ import { EcsTaskDefinition } from "./.gen/providers/aws/ecs-task-definition";
 import { EcsService } from "./.gen/providers/aws/ecs-service";
 import { IamRole } from "./.gen/providers/aws/iam-role";
 import { IamRolePolicyAttachment } from "./.gen/providers/aws/iam-role-policy-attachment";
+import { S3Backend } from "cdktf";
 
 dotenv.config();
 
@@ -26,6 +27,8 @@ interface AppConfig {
   region: string;
   projectName: string;
   ecrRepositoryName: string;
+  terraformStateBucket: string;
+  terraformLockTable: string;
   containerPort: number;
   desiredCount: number;
   cpu: string;
@@ -38,6 +41,8 @@ function getConfig(): AppConfig {
     projectName: process.env.PROJECT_NAME ?? "tv-devops-assessment",
     ecrRepositoryName:
       process.env.ECR_REPOSITORY_NAME ?? "tv-devops-assessment-app",
+    terraformStateBucket: process.env.TERRAFORM_STATE_BUCKET!,
+    terraformLockTable: process.env.TERRAFORM_LOCK_TABLE!,
     containerPort: Number(process.env.CONTAINER_PORT ?? 3000),
     desiredCount: Number(process.env.DESIRED_COUNT ?? 1),
     cpu: process.env.CPU ?? "256",
@@ -51,6 +56,14 @@ class DevOpsStack extends TerraformStack {
 
     // Load config
     const config = getConfig();
+
+    // Configure remote state backend
+    new S3Backend(this, {
+      bucket: config.terraformStateBucket,
+      key: `${config.projectName}/terraform.tfstate`,
+      region: config.region,
+      dynamodbTable: config.terraformLockTable,
+    });
 
     // Configure provider
     new AwsProvider(this, "aws", {
@@ -104,6 +117,7 @@ class DevOpsStack extends TerraformStack {
 
       tags: {
         Name: `${config.projectName}-public-a`,
+        Project: config.projectName,
       },
     });
 
@@ -118,6 +132,7 @@ class DevOpsStack extends TerraformStack {
 
       tags: {
         Name: `${config.projectName}-public-b`,
+        Project: config.projectName,
       },
     });
 
@@ -324,7 +339,7 @@ class DevOpsStack extends TerraformStack {
       },
     });
 
-    new IamRolePolicyAttachment(this, "taskExecutionRolePolicy", {
+    const taskExecutionRolePolicy = new IamRolePolicyAttachment(this, "taskExecutionRolePolicy", {
       role: taskExecutionRole.name,
       policyArn:
         "arn:aws:iam::aws:policy/service-role/AmazonECSTaskExecutionRolePolicy",
@@ -387,18 +402,8 @@ class DevOpsStack extends TerraformStack {
         },
       ],
 
-      dependsOn: [listener],
+      dependsOn: [listener, taskExecutionRolePolicy],
     });
-
-    // 4. VPC goes here next
-    // 5. Subnets go here
-    // 6. Security groups go here
-    // 7. ALB goes here
-    // 8. ECS cluster goes here
-    // 9. IAM role goes here
-    // 10. Task definition goes here
-    // 11. ECS service goes here
-    // 12. ALB URL output goes here
   }
 }
 

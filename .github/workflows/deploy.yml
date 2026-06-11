@@ -9,6 +9,10 @@ on:
 permissions:
   contents: read
 
+concurrency:
+  group: deploy-${{ github.ref_name }}
+  cancel-in-progress: false
+
 jobs:
   deploy:
     name: Deploy to ${{ github.ref_name == 'main' && 'prod' || 'dev' }}
@@ -19,6 +23,8 @@ jobs:
       AWS_REGION: ${{ vars.AWS_REGION }}
       PROJECT_NAME: ${{ vars.PROJECT_NAME }}
       ECR_REPOSITORY_NAME: ${{ vars.ECR_REPOSITORY_NAME }}
+      TERRAFORM_STATE_BUCKET: ${{ vars.TERRAFORM_STATE_BUCKET }}
+      TERRAFORM_LOCK_TABLE: ${{ vars.TERRAFORM_LOCK_TABLE }}
       CONTAINER_PORT: ${{ vars.CONTAINER_PORT }}
       DESIRED_COUNT: ${{ vars.DESIRED_COUNT }}
       CPU: ${{ vars.CPU }}
@@ -53,7 +59,7 @@ jobs:
         working-directory: ./iac
         run: npx cdktf-cli get
 
-      - name: Deploy infrastructure to create/update ECR and ECS resources
+      - name: Deploy infrastructure before image push
         working-directory: ./iac
         run: npx cdktf-cli deploy --auto-approve
 
@@ -68,7 +74,7 @@ jobs:
         run: |
           docker build -t "$ECR_REPOSITORY_NAME:latest" .
 
-      - name: Tag Docker image
+      - name: Tag Docker image for ECR
         run: |
           docker tag "$ECR_REPOSITORY_NAME:latest" \
             "${{ steps.aws-account.outputs.account_id }}.dkr.ecr.${AWS_REGION}.amazonaws.com/${ECR_REPOSITORY_NAME}:latest"

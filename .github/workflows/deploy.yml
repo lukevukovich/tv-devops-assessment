@@ -1,4 +1,4 @@
-name: Deploy
+name: Deploy to AWS
 
 on:
   push:
@@ -66,8 +66,8 @@ jobs:
 
       - name: Generate CDKTF providers
         working-directory: ./iac
-        run: npx cdktf get
+        run: npx cdktf-cli get
 
       - name: Deploy infrastructure
         working-directory: ./iac
-        run: npx cdktf deploy --auto-approve
+        run: npx cdktf-cli deploy --auto-approve

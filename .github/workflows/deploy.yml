@@ -64,6 +64,11 @@ jobs:
         working-directory: ./iac
         run: npm ci
 
+      - name: Set up Terraform
+        uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: 1.9.8
+
       - name: Generate CDKTF providers
         working-directory: ./iac
         run: npx cdktf-cli get

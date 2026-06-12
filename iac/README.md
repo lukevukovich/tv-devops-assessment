@@ -273,6 +273,8 @@ GitHub Actions is used to automate application and infrastructure deployment. Se
 
 Two infrastructure deployments are performed: the first provisions prerequisites such as ECR, and the second updates ECS after the new image has been published. In a production environment, I would separate infrastructure provisioning and application deployments into dedicated pipelines to reduce unnecessary infrastructure re-deployments.
 
+ECS deployments are currently forced after image publication because the workflow uses a stable image tag (`latest`). In a production environment, I would use immutable image tags (e.g., Git commit SHAs) and deploy new task definition revisions instead.
+
 ## Security Considerations
 
 ### Credentials

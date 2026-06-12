@@ -83,6 +83,13 @@ jobs:
         run: |
           docker push "${{ steps.aws-account.outputs.account_id }}.dkr.ecr.${AWS_REGION}.amazonaws.com/${ECR_REPOSITORY_NAME}:latest"
 
+      - name: Force ECS deployment
+        run: |
+          aws ecs update-service \
+            --cluster "$PROJECT_NAME-cluster" \
+            --service "$PROJECT_NAME-service" \
+            --force-new-deployment
+
       - name: Redeploy infrastructure after image push
         working-directory: ./iac
         run: npx cdktf-cli deploy --auto-approve

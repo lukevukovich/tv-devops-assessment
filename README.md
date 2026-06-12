@@ -2,11 +2,11 @@
   <img src="./assets/tv-logo.png" alt="TurboVets Logo" width="200" style="border-radius: 15px;" />
 </p>
 
-# TurboVets DevOps Assessment
+<h1 align="center">TurboVets DevOps Assessment</h1>
 
 This repository contains my submission for the TurboVets DevOps Assessment.
 
-The project demonstrates the deployment of a containerized Node.js application to AWS using a modern Infrastructure-as-Code and CI/CD approach. The solution provisions AWS infrastructure using CDK for Terraform (CDKTF), deploys the application to ECS Fargate behind an Application Load Balancer, and automates deployments through GitHub Actions.
+The project demonstrates the deployment of a containerized Express.js application to AWS using a modern Infrastructure-as-Code and CI/CD approach. The solution provisions AWS infrastructure using CDK for Terraform (CDKTF), deploys the application to ECS Fargate behind an Application Load Balancer, and automates deployments through GitHub Actions.
 
 ![AWS](https://img.shields.io/badge/AWS-ECS%20Fargate-orange)
 ![CDKTF](https://img.shields.io/badge/IaC-CDKTF-purple)
@@ -30,10 +30,10 @@ The project demonstrates the deployment of a containerized Node.js application t
 
 Contains the Node.js application source code, Docker configuration, and application-specific documentation. This directory focuses exclusively on the application runtime and containerization requirements.
 
-See: [Application README](./app/README.md)
+See [Application README](./app/README.md) for details on the application implementation, Dockerfile, and local development instructions.
 
 ### Infrastructure [`/iac`](./iac)
 
 Contains all AWS infrastructure definitions implemented using CDK for Terraform (CDKTF). This includes networking, security groups, ECS, ECR, load balancing, IAM roles, logging, Terraform remote state configuration, and deployment automation resources.
 
-See: [Infrastructure README](./iac/README.md)
+See [Infrastructure README](./iac/README.md) for details on the infrastructure design, CDKTF implementation, and deployment instructions.

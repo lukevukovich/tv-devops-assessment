@@ -6,15 +6,6 @@ on:
       - dev
       - main
     workflow_dispatch:
-      inputs:
-        environment:
-          description: "Environment to deploy"
-          required: true
-          default: "dev"
-          type: choice
-          options:
-            - dev
-            - prod
 
 permissions:
   contents: read

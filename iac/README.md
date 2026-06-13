@@ -167,7 +167,9 @@ cdktf get
 
 Infrastructure configuration is externalized through GitHub Variables and local environment variables.
 
-### Repository Variables
+Each environment (dev and prod) has its own set of environment variables and secrets that need configured.
+
+### Environment Variables
 
 | Variable               | Description                                     | Example                             |
 | ---------------------- | ----------------------------------------------- | ----------------------------------- |
@@ -181,7 +183,7 @@ Infrastructure configuration is externalized through GitHub Variables and local 
 | CPU                    | ECS task CPU allocation                         | 256                                 |
 | MEMORY                 | ECS task memory allocation (MB)                 | 512                                 |
 
-### Repository Secrets
+### Environment Secrets
 
 | Secret                | Description                                  |
 | --------------------- | -------------------------------------------- |

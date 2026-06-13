@@ -8,14 +8,16 @@ The infrastructure is designed to be fully portable, configurable, and deployabl
 
 ```text
 iac/
-├── __tests__/
+├── src
+│   ├── config.ts
+│   └── stack.ts
 ├── .env.example
 ├── .gitignore
 ├── cdktf.json
 ├── jest.config.js
 ├── main.ts
-├── package-lock.json
 ├── package.json
+├── package-lock.json
 ├── README.md
 ├── setup.js
 └── tsconfig.json
@@ -165,7 +167,9 @@ cdktf get
 
 Infrastructure configuration is externalized through GitHub Variables and local environment variables.
 
-### Repository Variables
+In GitHub, each environment (dev and prod) has its own set of environment variables and secrets that need configured.
+
+### Environment Variables
 
 | Variable               | Description                                     | Example                             |
 | ---------------------- | ----------------------------------------------- | ----------------------------------- |
@@ -179,7 +183,7 @@ Infrastructure configuration is externalized through GitHub Variables and local 
 | CPU                    | ECS task CPU allocation                         | 256                                 |
 | MEMORY                 | ECS task memory allocation (MB)                 | 512                                 |
 
-### Repository Secrets
+### Environment Secrets
 
 | Secret                | Description                                  |
 | --------------------- | -------------------------------------------- |
@@ -226,6 +230,8 @@ Terraform state files should never be committed to source control.
 
 ## Deploying Infrastructure
 
+## Local Deployment
+
 Generate Terraform configuration:
 
 ```bash
@@ -262,9 +268,13 @@ cdktf destroy --auto-approve
 
 GitHub Actions is used to automate application and infrastructure deployment. See [deploy.yml](../.github/workflows/deploy.yml) for the CI/CD pipeline configuration.
 
+### Triggering Deployments
+- Pull request is merged into a protected branch (`dev` or `main`)
+- Workflow is manually triggered via the **Actions** tab in the GitHub repository, where the **Deploy to AWS** workflow can be selected and run manually in the target environment.
+
 ### Workflow Overview
 
-1. Pull request is merged into a protected branch
+1. Deployment is triggered
 2. GitHub Actions builds the Docker image
 3. The image is pushed to Amazon ECR
 4. CDKTF synthesizes Terraform configuration

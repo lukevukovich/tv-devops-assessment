@@ -266,7 +266,7 @@ cdktf destroy --auto-approve
 
 ## CI/CD
 
-GitHub Actions is used to automate application and infrastructure deployment. See [deploy.yml](../.github/workflows/deploy.yml) for the CI/CD pipeline configuration.
+GitHub Actions is used to automate application and infrastructure deployment. See [deploy-to-aws.yml](../.github/workflows/deploy-to-aws.yml) for the CI/CD pipeline configuration.
 
 ### Triggering Deployments
 - Pull request is merged into a protected branch (`dev` or `main`)

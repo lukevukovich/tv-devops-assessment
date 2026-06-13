@@ -8,6 +8,8 @@ This repository contains my submission for the TurboVets DevOps Assessment.
 
 The project demonstrates the deployment of a containerized Express.js application to AWS using a modern Infrastructure-as-Code and CI/CD approach. The solution provisions AWS infrastructure using CDK for Terraform (CDKTF), deploys the application to ECS Fargate behind an Application Load Balancer, and automates deployments through GitHub Actions.
 
+Watch walkthrough video [here](https://drive.google.com/file/d/1Rd4jmdYAyFyU8j52U-1OhYJszWyRE7j2/view?usp=sharing)
+
 ![AWS](https://img.shields.io/badge/AWS-ECS%20Fargate-orange)
 ![CDKTF](https://img.shields.io/badge/IaC-CDKTF-purple)
 ![Docker](https://img.shields.io/badge/Container-Docker-blue)

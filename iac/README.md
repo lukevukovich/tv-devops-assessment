@@ -8,14 +8,16 @@ The infrastructure is designed to be fully portable, configurable, and deployabl
 
 ```text
 iac/
-├── __tests__/
+├── src
+│   ├── config.ts
+│   └── stack.ts
 ├── .env.example
 ├── .gitignore
 ├── cdktf.json
 ├── jest.config.js
 ├── main.ts
-├── package-lock.json
 ├── package.json
+├── package-lock.json
 ├── README.md
 ├── setup.js
 └── tsconfig.json
